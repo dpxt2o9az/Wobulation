@@ -8,7 +8,7 @@ Recursively update cluster descriptions based on a preserved frequency distribut
 The underlying frequency distribution is also recursively updated in conjunction with the cluster definition, maintaining a predefined, fixed width buffer above and below the current cluster boundaries.  
 The use of percentiles about the frequency distribution mean to establish cluster boundaries enables the formation of asymmetric cluster ranges and does not require a normality assumption.
 
-![alt text](https://github.com/dpxt2o9az/Wobulation/blob/master/img/number-line.jpg "Logo Title Text 1")
+![alt text](https://github.com/dpxt2o9az/Wobulation/blob/master/img/number-line.png "Logo Title Text 1")
 
 ## Assumptions
 1. The underlying cluster data is not normally distributed.
