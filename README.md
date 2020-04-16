@@ -29,7 +29,7 @@ C_min – lower cluster boundary
 C_max – upper cluster boundary  
 ### Computational
 #### Precision
-Cluster boundaries and bin boundaries are in tyeaenths, bin midpoints are of the form xxx.x5
+Cluster boundaries and bin boundaries are in tenths, bin midpoints are of the form xxx.x5
 #### Calculating the Mean
 ![alt text](https://github.com/dpxt2o9az/Wobulation/blob/master/img/general-mean-formula.png "Logo Title Text 1") or recursively ![alt text](https://github.com/dpxt2o9az/Wobulation/blob/master/img/recurrent-mean-formula.png "Logo Title Text 2")
 where  
