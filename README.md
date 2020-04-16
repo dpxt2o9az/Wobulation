@@ -45,7 +45,8 @@ Initialize 9 bins having the midpoints shown in the top row with the initial fre
 |1    |2    | 3   |8    |8    |5    |5    |3    |1    |
 
 Process 125 new data points all having a value of 0.85.
-*Expected results:*
+
+*Expected results:*  
 Cluster limits start at 0.7 -1.4, eventually converging to 0.8-1.0
 ## Other Test/Experimental Cases
 TBD
