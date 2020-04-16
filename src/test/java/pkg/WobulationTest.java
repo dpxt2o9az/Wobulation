@@ -75,21 +75,19 @@ public class WobulationTest {
         BinContainer bins = initialBins();
         assertEquals(1.4, bins.findClusterMax(), 0.00001);
     }
-    
+
     @Test
     public void testFinalClusterMinValue() {
         BinContainer bins = finalBins();
         assertEquals(0.8, bins.findClusterMin(), 0.000001);
     }
-    
+
     @Test
     public void testFinalClusterMaxValue() {
         BinContainer bins = finalBins();
         assertEquals(1.0, bins.findClusterMax(), 0.00001);
     }
-    
-    
-    
+
     public static class BinContainer {
 
         private double binWidth = 0.1;
@@ -116,7 +114,7 @@ public class WobulationTest {
 
         private Bin binFor(double midPoint) {
             // todo: this is crap, but it might work
-            System.out.println("binFor midPoint: " + midPoint);
+//            System.out.println("binFor midPoint: " + midPoint);
             for (Bin b : bins) {
                 final double difference = Math.abs(b.midPoint - midPoint);
                 if (difference < 0.00000001) {
@@ -136,16 +134,18 @@ public class WobulationTest {
             double mean = dividend / N;
 
             Bin binFor = binFor(midPoint(mean));
-            System.out.println("this succeeds");
+//            System.out.println("this succeeds");
 
             final double meanBinLowerContribution = binFor.count * ((mean - lower(mean)) / (binWidth));
 
             // sum up the all bin-counts lower than the mean
             double totalLowerContribution = meanBinLowerContribution;
             double midPoint = binFor.midPoint -= binWidth;
+            System.out.printf("lcf %f @ %f\n", totalLowerContribution, midPoint);
             while (binFor(midPoint) != null) {
                 totalLowerContribution += binFor(midPoint).count;
                 midPoint -= binWidth;
+                System.out.printf("lcf %f @ %f\n", totalLowerContribution, midPoint);
             }
 
             // now do it again, but only accumulate up to p
@@ -153,8 +153,8 @@ public class WobulationTest {
             double contribution = meanBinLowerContribution;
             midPoint = midPoint(mean) - binWidth;
             while (contribution < targetContribution && binFor(midPoint) != null) {
-                final int bin = binFor(midPoint).count;
-                contribution += bin;
+                final int binCount = binFor(midPoint).count;
+                contribution += binCount;
                 midPoint -= binWidth;
             }
 
@@ -173,16 +173,19 @@ public class WobulationTest {
             double mean = dividend / N;
 
             Bin binFor = binFor(midPoint(mean));
-            System.out.println("this does not");
+//            System.out.println("this does not");
             final double meanBinUpperContribution = binFor.count * ((upper(mean) - mean) / (binWidth));
-            System.out.println("herp derp now it does!?!?");
+//            System.out.println("herp derp now it does!?!?");
 
             // sum up the all bin-counts lower than the mean
             double totalUpperContribution = meanBinUpperContribution;
             double midPoint = binFor.midPoint += binWidth;
+            
+            System.out.printf("ucf %f @ %f\n", totalUpperContribution, midPoint);
             while (binFor(midPoint) != null) {
                 totalUpperContribution += binFor(midPoint).count;
                 midPoint += binWidth;
+                System.out.printf("ucf %f @ %f\n", totalUpperContribution, midPoint);
             }
 
             // now do it again, but only accumulate up to p
@@ -230,9 +233,9 @@ public class WobulationTest {
         }
 
         void bump() {
-            System.out.printf("bumping %f from %d", this.midPoint, this.count);
+//            System.out.printf("bumping %f from %d", this.midPoint, this.count);
             this.count++;
-            System.out.printf(" to %d\n", this.count);
+//            System.out.printf(" to %d\n", this.count);
         }
 
         @Override
