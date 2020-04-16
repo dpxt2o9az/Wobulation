@@ -28,4 +28,4 @@ C_max – upper cluster boundary
 #### Precision
 Cluster boundaries and bin boundaries are in tyeaenths, bin midpoints are of the form xxx.x5
 #### Calculating the Mean
-![mu = sum(f*m) / N](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+![alt text](https://github.com/dpxt2o9az/Wobulation/raw/master/img/general-mean-formula.jpg "Logo Title Text 1")
