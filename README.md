@@ -7,6 +7,9 @@ The initial effort will focus on wobulation of a single cluster.
 Recursively update cluster descriptions based on a preserved frequency distribution of the relevant underlying data.  
 The underlying frequency distribution is also recursively updated in conjunction with the cluster definition, maintaining a predefined, fixed width buffer above and below the current cluster boundaries.  
 The use of percentiles about the frequency distribution mean to establish cluster boundaries enables the formation of asymmetric cluster ranges and does not require a normality assumption.
+
+![alt text](https://github.com/dpxt2o9az/Wobulation/blob/master/img/number-line.jpg "Logo Title Text 1")
+
 ## Assumptions
 1. The underlying cluster data is not normally distributed.
 2. The underlying data is uniformly distributed within a given bin (small bin assumption.)
@@ -21,7 +24,7 @@ p – percentile to be used to form cluster boundaries, range: (0,1), default = 
 H – horizon to be monitored beyond cluster boundaries  (could be integer used as incr multiplier)  
 Incr - Processing increment (default = 0.1)  
 ### Output Values
-$\mu$ – cluster mean  
+![alt text](https://github.com/dpxt2o9az/Wobulation/blob/master/img/mu.png "Logo Title Text 1") – cluster mean  
 C_min – lower cluster boundary  
 C_max – upper cluster boundary  
 ### Computational
