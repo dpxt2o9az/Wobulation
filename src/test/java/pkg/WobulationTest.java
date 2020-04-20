@@ -115,7 +115,6 @@ public class WobulationTest {
 
         private Bin binFor(double midPoint) {
             // todo: this is crap, but it might work
-//            System.out.println("binFor midPoint: " + midPoint);
             for (Bin b : bins) {
                 final double difference = Math.abs(b.midPoint - midPoint);
                 if (difference < 0.00000001) {
@@ -131,12 +130,8 @@ public class WobulationTest {
             //   for this single "cluster" task, 100% of the data is all the data...
             // calculate the mean; we need N so, go ahead and copy-paste here for now
             MeanContext mc = calculateMean();
-//            Integer N = bins.stream().map(b -> b.count).reduce(0, Integer::sum);
-//            double dividend = bins.stream().map(b -> b.count * b.midPoint).reduce(0.0, Double::sum);
-//            double mean = dividend / N;
 
             Bin binFor = binFor(midPoint(mc.mean));
-//            System.out.println("this succeeds");
 
             final double meanBinLowerContribution = binFor.count * ((mc.mean - lower(mc.mean)) / (binWidth));
 
@@ -170,18 +165,13 @@ public class WobulationTest {
             //    containing the pth percentile of the data above the new mean.
             // my assumptions:
             //   for this single "cluster" task, 100% of the data is all the data...
-
-            // calculate the mean; we need N so, go ahead and copy-paste here for now
             MeanContext mc = calculateMean();
-//            Integer N = bins.stream().map(b -> b.count).reduce(0, Integer::sum);
-//            double dividend = bins.stream().map(b -> b.count * b.midPoint).reduce(0.0, Double::sum);
-//            double mean = dividend / N;
 
             Bin binFor = binFor(midPoint(mc.mean));
-//            System.out.println("this does not");
-            final double meanBinUpperContribution = binFor.count * ((upper(mc.mean) - mc.mean) / (binWidth));
-//            System.out.println("herp derp now it does!?!?");
 
+            final double meanBinUpperContribution = binFor.count * ((upper(mc.mean) - mc.mean) / (binWidth));
+
+            
             // sum up the all bin-counts lower than the mean
             double totalUpperContribution = meanBinUpperContribution;
             double midPoint = binFor.midPoint;
@@ -245,9 +235,7 @@ public class WobulationTest {
         }
 
         void bump() {
-//            System.out.printf("bumping %f from %d", this.midPoint, this.count);
             this.count++;
-//            System.out.printf(" to %d\n", this.count);
         }
 
         @Override
