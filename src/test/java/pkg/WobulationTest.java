@@ -19,7 +19,7 @@ public class WobulationTest {
     public WobulationTest() {
     }
 
-    BinContainer initialBins() {
+    private BinContainer initialBins() {
         BinContainer bins = new BinContainer();
         bins.add(0.65, 1);
         bins.add(0.75, 2);
@@ -31,26 +31,6 @@ public class WobulationTest {
         bins.add(1.35, 3);
         bins.add(1.45, 1);
         return bins;
-    }
-
-    @Test
-    public void testInitialMean() {
-
-        BinContainer bins = initialBins();
-
-        double mean = bins.calculateMean().mean;
-        System.out.println("mean: " + mean);
-
-        assertEquals(1.061111, mean, 0.00001);
-    }
-
-    @Test
-    public void testFinalMean() {
-
-        BinContainer bins = finalBins();
-        final double mean = bins.calculateMean().mean;
-        assertEquals(0.897205, mean, 0.00001);
-
     }
 
     private BinContainer finalBins() {
@@ -65,28 +45,23 @@ public class WobulationTest {
     }
 
     @Test
-    public void testInitialClusterMinValue() {
+    public void testInitialBins() {
         BinContainer bins = initialBins();
+        double mean = bins.calculateMean().mean;
+        assertEquals(1.061111, mean, 0.00001);
         assertEquals(0.7, bins.findClusterMin(), 0.00001);
-    }
-
-    @Test
-    public void testInitialClusterMaxValue() {
-        BinContainer bins = initialBins();
         assertEquals(1.4, bins.findClusterMax(), 0.00001);
     }
 
     @Test
-    public void testFinalClusterMinValue() {
+    public void testFinalBins() {
         BinContainer bins = finalBins();
+        final double mean = bins.calculateMean().mean;
+        assertEquals(0.897205, mean, 0.00001);
         assertEquals(0.8, bins.findClusterMin(), 0.000001);
-    }
-
-    @Test
-    public void testFinalClusterMaxValue() {
-        BinContainer bins = finalBins();
         assertEquals(1.4, bins.findClusterMax(), 0.00001);
     }
+
 
     public static class BinContainer {
 
