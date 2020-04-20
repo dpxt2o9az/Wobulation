@@ -38,7 +38,7 @@ public class WobulationTest {
 
         BinContainer bins = initialBins();
 
-        double mean = bins.calculateMean();
+        double mean = bins.calculateMean().mean;
         System.out.println("mean: " + mean);
 
         assertEquals(1.061111, mean, 0.00001);
@@ -48,7 +48,7 @@ public class WobulationTest {
     public void testFinalMean() {
 
         BinContainer bins = finalBins();
-        final double mean = bins.calculateMean();
+        final double mean = bins.calculateMean().mean;
         assertEquals(0.897205, mean, 0.00001);
 
     }
@@ -58,7 +58,7 @@ public class WobulationTest {
         double mean = 0.0;
         for (int i = 0; i < 125; i++) {
             bins.bump(0.85);
-            mean = bins.calculateMean();
+            mean = bins.calculateMean().mean;
             System.out.println("mean: " + mean);
         }
         return bins;
@@ -85,7 +85,7 @@ public class WobulationTest {
     @Test
     public void testFinalClusterMaxValue() {
         BinContainer bins = finalBins();
-        assertEquals(1.0, bins.findClusterMax(), 0.00001);
+        assertEquals(1.4, bins.findClusterMax(), 0.00001);
     }
 
     public static class BinContainer {
@@ -95,11 +95,12 @@ public class WobulationTest {
 
         SortedSet<Bin> bins = new TreeSet<>();
 
-        double calculateMean() {
-            Integer divisor = bins.stream().map(b -> b.count).reduce(0, Integer::sum);
-            double dividend = bins.stream().map(b -> b.count * b.midPoint).reduce(0.0, Double::sum);
-            double mean = dividend / divisor;
-            return mean;
+        MeanContext calculateMean() {
+            MeanContext mc = new MeanContext();
+            mc.n = bins.stream().map(b -> b.count).reduce(0, Integer::sum);
+            mc.dividend = bins.stream().map(b -> b.count * b.midPoint).reduce(0.0, Double::sum);
+            mc.mean = mc.dividend / mc.n;
+            return mc;
         }
 
         void add(double midPoint, int initialCount) {
@@ -129,29 +130,32 @@ public class WobulationTest {
             // my assumptions:
             //   for this single "cluster" task, 100% of the data is all the data...
             // calculate the mean; we need N so, go ahead and copy-paste here for now
-            Integer N = bins.stream().map(b -> b.count).reduce(0, Integer::sum);
-            double dividend = bins.stream().map(b -> b.count * b.midPoint).reduce(0.0, Double::sum);
-            double mean = dividend / N;
+            MeanContext mc = calculateMean();
+//            Integer N = bins.stream().map(b -> b.count).reduce(0, Integer::sum);
+//            double dividend = bins.stream().map(b -> b.count * b.midPoint).reduce(0.0, Double::sum);
+//            double mean = dividend / N;
 
-            Bin binFor = binFor(midPoint(mean));
+            Bin binFor = binFor(midPoint(mc.mean));
 //            System.out.println("this succeeds");
 
-            final double meanBinLowerContribution = binFor.count * ((mean - lower(mean)) / (binWidth));
+            final double meanBinLowerContribution = binFor.count * ((mc.mean - lower(mc.mean)) / (binWidth));
 
             // sum up the all bin-counts lower than the mean
             double totalLowerContribution = meanBinLowerContribution;
-            double midPoint = binFor.midPoint -= binWidth;
+            double midPoint = binFor.midPoint;
             System.out.printf("lcf %f @ %f\n", totalLowerContribution, midPoint);
+            midPoint -= binWidth;
+
             while (binFor(midPoint) != null) {
                 totalLowerContribution += binFor(midPoint).count;
-                midPoint -= binWidth;
                 System.out.printf("lcf %f @ %f\n", totalLowerContribution, midPoint);
+                midPoint -= binWidth;
             }
 
             // now do it again, but only accumulate up to p
             double targetContribution = totalLowerContribution * (p);
             double contribution = meanBinLowerContribution;
-            midPoint = midPoint(mean) - binWidth;
+            midPoint = midPoint(mc.mean) - binWidth;
             while (contribution < targetContribution && binFor(midPoint) != null) {
                 final int binCount = binFor(midPoint).count;
                 contribution += binCount;
@@ -168,30 +172,32 @@ public class WobulationTest {
             //   for this single "cluster" task, 100% of the data is all the data...
 
             // calculate the mean; we need N so, go ahead and copy-paste here for now
-            Integer N = bins.stream().map(b -> b.count).reduce(0, Integer::sum);
-            double dividend = bins.stream().map(b -> b.count * b.midPoint).reduce(0.0, Double::sum);
-            double mean = dividend / N;
+            MeanContext mc = calculateMean();
+//            Integer N = bins.stream().map(b -> b.count).reduce(0, Integer::sum);
+//            double dividend = bins.stream().map(b -> b.count * b.midPoint).reduce(0.0, Double::sum);
+//            double mean = dividend / N;
 
-            Bin binFor = binFor(midPoint(mean));
+            Bin binFor = binFor(midPoint(mc.mean));
 //            System.out.println("this does not");
-            final double meanBinUpperContribution = binFor.count * ((upper(mean) - mean) / (binWidth));
+            final double meanBinUpperContribution = binFor.count * ((upper(mc.mean) - mc.mean) / (binWidth));
 //            System.out.println("herp derp now it does!?!?");
 
             // sum up the all bin-counts lower than the mean
             double totalUpperContribution = meanBinUpperContribution;
-            double midPoint = binFor.midPoint += binWidth;
-            
+            double midPoint = binFor.midPoint;
             System.out.printf("ucf %f @ %f\n", totalUpperContribution, midPoint);
+            midPoint += binWidth;
+
             while (binFor(midPoint) != null) {
                 totalUpperContribution += binFor(midPoint).count;
-                midPoint += binWidth;
                 System.out.printf("ucf %f @ %f\n", totalUpperContribution, midPoint);
+                midPoint += binWidth;
             }
 
             // now do it again, but only accumulate up to p
             double targetContribution = totalUpperContribution * (p);
             double contribution = meanBinUpperContribution;
-            midPoint = midPoint(mean) + binWidth;
+            midPoint = midPoint(mc.mean) + binWidth;
             while (contribution < targetContribution && binFor(midPoint) != null) {
                 final int bin = binFor(midPoint).count;
                 contribution += bin;
@@ -217,9 +223,15 @@ public class WobulationTest {
 
     }
 
+    static class MeanContext {
+        int n;
+        double dividend;
+        double mean;
+    }
+
     static class Bin implements Comparable<Bin> {
 
-        double midPoint;
+        final double midPoint;
         int count;
 
         Bin(double midPoint) {
