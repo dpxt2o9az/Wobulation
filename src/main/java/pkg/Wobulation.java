@@ -7,69 +7,38 @@ package pkg;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
-import static junit.framework.Assert.assertEquals;
-import org.junit.Test;
 
 /**
  *
  * @author Brad
  */
-public class WobulationTest {
+public class Wobulation {
+        public static class BinContainer {
 
-    public WobulationTest() {
-    }
+        private static final double DEFAULT_BIN_WIDTH = 0.1;
+        private static final MeanBinContributionCalculator DEFAULT_CALC = new ProportionalMeanBinContributionCalculator();
 
-    private BinContainer initialBins() {
-        final MeanBinContributionCalculator meanBinContributionCalculator = new ProportionalMeanBinContributionCalculator();
-        BinContainer bins = new BinContainer(meanBinContributionCalculator);
-        bins.add(0.65, 1);
-        bins.add(0.75, 2);
-        bins.add(0.85, 3);
-        bins.add(0.95, 8);
-        bins.add(1.05, 8);
-        bins.add(1.15, 5);
-        bins.add(1.25, 5);
-        bins.add(1.35, 3);
-        bins.add(1.45, 1);
-        return bins;
-    }
-
-    private BinContainer finalBins() {
-        BinContainer bins = initialBins();
-        double mean = 0.0;
-        for (int i = 0; i < 125; i++) {
-            bins.bump(0.85);
-            mean = bins.calculateMean().mean;
-            System.out.println("mean: " + mean);
-        }
-        return bins;
-    }
-
-    @Test
-    public void testInitialBins() {
-        BinContainer bins = initialBins();
-        double mean = bins.calculateMean().mean;
-        assertEquals(1.061111, mean, 0.00001);
-        assertEquals(0.7, bins.findClusterMin(), 0.00001);
-        assertEquals(1.4, bins.findClusterMax(), 0.00001);
-    }
-
-    @Test
-    public void testFinalBins() {
-        BinContainer bins = finalBins();
-        final double mean = bins.calculateMean().mean;
-        assertEquals(0.897205, mean, 0.00001);
-        assertEquals(0.8, bins.findClusterMin(), 0.00001);
-        assertEquals(1.4, bins.findClusterMax(), 0.00001);
-    }
-
-    public static class BinContainer {
-
-        private final double binWidth = 0.1;
+        private final double binWidth;
         private final double p = 0.90;
         private final MeanBinContributionCalculator meanBinCalculator;
 
-        public BinContainer(MeanBinContributionCalculator calc) {
+        BinContainer() {
+            this(DEFAULT_BIN_WIDTH, DEFAULT_CALC);
+        }
+
+        BinContainer(double binWidth) {
+            this(binWidth, DEFAULT_CALC);
+        }
+
+        BinContainer(MeanBinContributionCalculator calc) {
+            this(DEFAULT_BIN_WIDTH, calc);
+        }
+
+        BinContainer(double binWidth, MeanBinContributionCalculator calc) {
+            if (Math.abs(binWidth - DEFAULT_BIN_WIDTH) > 0.00001) {
+                System.err.println("WARNING: Untested with anything other than binWidth: " + DEFAULT_BIN_WIDTH);
+            }
+            this.binWidth = binWidth;
             this.meanBinCalculator = calc;
         }
 
@@ -115,22 +84,12 @@ public class WobulationTest {
 
             final double meanBinLowerContribution = meanBinCalculator.calculateLowerContribution(binFor.count, lower(mc.mean), mc.mean, this.binWidth);
 
-            // sum up the all bin-counts lower than the mean
-            double totalLowerContribution = meanBinLowerContribution;
-            double midPoint = binFor.midPoint;
-            System.out.printf("lcf %f @ %f\n", totalLowerContribution, midPoint);
-            midPoint -= (this.binWidth);
-
-            while (binFor(midPoint) != null) {
-                totalLowerContribution += binFor(midPoint).count;
-                System.out.printf("lcf %f @ %f\n", totalLowerContribution, midPoint);
-                midPoint -= (this.binWidth);
-            }
+            double totalLowerContribution = calculateTotalLowerContribution(meanBinLowerContribution, binFor.midPoint);
 
             // now do it again, but only accumulate up to p
-            double targetContribution = totalLowerContribution * (p);
+            final double targetContribution = totalLowerContribution * (p);
             double contribution = meanBinLowerContribution;
-            midPoint = midPoint(mc.mean) - (this.binWidth);
+            double midPoint = midPoint(mc.mean) - (this.binWidth);
             while (contribution < targetContribution && binFor(midPoint) != null) {
                 final int binCount = binFor(midPoint).count;
                 contribution += binCount;
@@ -148,43 +107,61 @@ public class WobulationTest {
             MeanContext mc = calculateMean();
 
             Bin binFor = binFor(midPoint(mc.mean));
-            final double binWidth1 = binWidth;
 
-            final double meanBinUpperContribution = meanBinCalculator.calculateUpperContribution(binFor.count, upper(mc.mean), mc.mean, binWidth1);
+            final double meanBinUpperContribution = meanBinCalculator.calculateUpperContribution(binFor.count, upper(mc.mean), mc.mean, binWidth);
 
-            // sum up the all bin-counts lower than the mean
-            double totalUpperContribution = meanBinUpperContribution;
-            double midPoint = binFor.midPoint;
-            System.out.printf("ucf %f @ %f\n", totalUpperContribution, midPoint);
-            midPoint += binWidth1;
-
-            while (binFor(midPoint) != null) {
-                totalUpperContribution += binFor(midPoint).count;
-                System.out.printf("ucf %f @ %f\n", totalUpperContribution, midPoint);
-                midPoint += binWidth1;
-            }
+            double totalUpperContribution = calculateTotalUpperContribution(meanBinUpperContribution, binFor.midPoint);
 
             // now do it again, but only accumulate up to p
             double targetContribution = totalUpperContribution * (p);
             double contribution = meanBinUpperContribution;
-            midPoint = midPoint(mc.mean) + binWidth1;
+            double midPoint = midPoint(mc.mean) + binWidth;
             while (contribution < targetContribution && binFor(midPoint) != null) {
                 final int bin = binFor(midPoint).count;
                 contribution += bin;
-                midPoint += binWidth1;
+                midPoint += binWidth;
             }
 
-            return upper(midPoint - binWidth1);
+            return upper(midPoint - binWidth);
+        }
+
+        private double calculateTotalLowerContribution(final double meanBinLowerContribution, final double startingMidPoint) {
+            // sum up the all bin-counts lower than the mean
+            double totalLowerContribution = meanBinLowerContribution;
+
+            double midPoint = startingMidPoint;
+            System.out.printf("lcf %f @ %f\n", totalLowerContribution, midPoint);
+            midPoint -= this.binWidth;
+            while (binFor(midPoint) != null) {
+                totalLowerContribution += binFor(midPoint).count;
+                System.out.printf("lcf %f @ %f\n", totalLowerContribution, midPoint);
+                midPoint -= this.binWidth;
+            }
+            return totalLowerContribution;
+        }
+
+        private double calculateTotalUpperContribution(final double meanBinUpperContribution, final double startingMidPoint) {
+            // sum up the all bin-counts lower than the mean
+            double totalUpperContribution = meanBinUpperContribution;
+            double midPoint = startingMidPoint;
+            System.out.printf("ucf %f @ %f\n", totalUpperContribution, midPoint);
+            midPoint += this.binWidth;
+            while (binFor(midPoint) != null) {
+                totalUpperContribution += binFor(midPoint).count;
+                System.out.printf("ucf %f @ %f\n", totalUpperContribution, midPoint);
+                midPoint += this.binWidth;
+            }
+            return totalUpperContribution;
         }
 
         double lower(double value) {
             // todo: this only works for bin-width of 0.1
-            return Math.floor(value * 10) / 10;
+            return Math.floor(value / binWidth) * binWidth;
         }
 
         double upper(double value) {
             // todo: this only works for bin-width of 0.1
-            return Math.floor(value * 10) / 10 + binWidth;
+            return (Math.floor(value / binWidth) * binWidth) + binWidth;
         }
 
         double midPoint(double value) {
@@ -235,10 +212,12 @@ public class WobulationTest {
 
     static class ProportionalMeanBinContributionCalculator implements MeanBinContributionCalculator {
 
+        @Override
         public double calculateLowerContribution(final int count, final double lower, final double mean, final double binWidth) {
             return count * ((mean - lower) / (binWidth));
         }
 
+        @Override
         public double calculateUpperContribution(final int count, final double upper, final double mean, final double binWidth) {
             return count * ((upper - mean) / (binWidth));
         }
@@ -247,13 +226,16 @@ public class WobulationTest {
 
     static class HalfAssMeanBinContributionCalculator implements MeanBinContributionCalculator {
 
+        @Override
         public double calculateLowerContribution(final int count, final double lower, final double mean, final double binWidth) {
             return count / 2.0;
         }
 
+        @Override
         public double calculateUpperContribution(final int count, final double upper, final double mean, final double binWidth) {
             return count / 2.0;
         }
     }
+
 
 }
