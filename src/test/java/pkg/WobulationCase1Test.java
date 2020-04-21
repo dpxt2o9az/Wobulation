@@ -51,8 +51,8 @@ public class WobulationCase1Test {
         BinContainer bins = initialBins();
         double mean = bins.calculateMean().mean;
         assertEquals(1.061111, mean, 0.00001);
-        assertEquals(0.7, bins.findClusterMin(), 0.00001);
-        assertEquals(1.4, bins.findClusterMax(), 0.00001);
+        assertEquals(0.7, bins.calculateClusterMin(), 0.00001);
+        assertEquals(1.4, bins.calculateClusterMax(), 0.00001);
     }
 
     @Test
@@ -60,8 +60,8 @@ public class WobulationCase1Test {
         BinContainer bins = finalBins();
         final double mean = bins.calculateMean().mean;
         assertEquals(0.897205, mean, 0.00001);
-        assertEquals(0.8, bins.findClusterMin(), 0.00001);
-        assertEquals(1.4, bins.findClusterMax(), 0.00001);
+        assertEquals(0.8, bins.calculateClusterMin(), 0.00001);
+        assertEquals(1.4, bins.calculateClusterMax(), 0.00001);
     }
 
 }

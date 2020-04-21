@@ -13,9 +13,11 @@ import java.util.TreeSet;
  * @author Brad
  */
 public class Wobulation {
-        public static class BinContainer {
+
+    public static class BinContainer {
 
         private static final double DEFAULT_BIN_WIDTH = 0.1;
+        private static final double DEFAULT_HORIZON = 1.0;
         private static final MeanBinContributionCalculator DEFAULT_CALC = new ProportionalMeanBinContributionCalculator();
 
         private final double binWidth;
@@ -59,6 +61,10 @@ public class Wobulation {
         void bump(double value) {
             double midPoint = midPoint(value);
             Bin binFor = binFor(midPoint);
+            if (binFor == null) {
+                binFor = new Bin(midPoint);
+                bins.add(binFor);
+            }
             binFor.bump();
         }
 
@@ -70,10 +76,13 @@ public class Wobulation {
                     return b;
                 }
             }
+//            final Bin newBin = new Bin(midPoint);
+//            bins.add(newBin);
+//            return newBin;
             return null;
         }
 
-        double findClusterMin() {
+        double calculateClusterMin() {
             // 3. Update the cluster min to be the lower boundary of bin containing the (1-p)th percentile of the data below the new mean.
             // my assumptions:
             //   for this single "cluster" task, 100% of the data is all the data...
@@ -99,7 +108,7 @@ public class Wobulation {
             return lower(midPoint + this.binWidth);
         }
 
-        double findClusterMax() {
+        double calculateClusterMax() {
             // 4. Update the cluster max to be the upper boundary of the bin
             //    containing the pth percentile of the data above the new mean.
             // my assumptions:
@@ -168,6 +177,13 @@ public class Wobulation {
             return lower(value) + binWidth / 2.0;
         }
 
+        void dump() {
+            for (Bin b : bins) {
+                System.out.print(b + ", ");
+            }
+            System.out.printf("{ mean: %.4f, Cmin: $.4f, Cmax: %.4f }\n", calculateMean().mean, calculateClusterMin(), calculateClusterMax());
+        }
+
     }
 
     static class MeanContext {
@@ -183,7 +199,7 @@ public class Wobulation {
         int count;
 
         Bin(double midPoint) {
-            this(midPoint, 1);
+            this(midPoint, 0);
         }
 
         Bin(double midPoint, int initialCount) {
@@ -199,6 +215,12 @@ public class Wobulation {
         @Override
         public int compareTo(Bin o) {
             return Double.compare(this.midPoint, o.midPoint);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("{ midPoint: %.4f, count: %d }", midPoint, count);
+
         }
 
     }
@@ -236,6 +258,5 @@ public class Wobulation {
             return count / 2.0;
         }
     }
-
 
 }
