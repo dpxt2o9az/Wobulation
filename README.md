@@ -52,4 +52,26 @@ Process 125 new data points all having a value of 0.85.
 *Expected results:*  
 Cluster limits start at 0.7 -1.4, eventually converging to 0.8-1.0
 ## Other Test/Experimental Cases
-TBD
+### Test Data Set 2
+Process the attached data (Wob_Valid_case2.csv) in the order provided.
+
+There are no pre-existing bin values, i.e., start with the first value and establish bins appropriately. Since the first value is ~8.36, the initial mean bin will be [8.3,8.4).
+
+#### Case 1:
+Use a "horizon" of 0.3 (i.e., 3 bins above and 3 bins below the "mean bin"  
+Note: on first iteration there will be 7 bins:
+
+[8, 8.1), [8.1, 8.2), [8.2, 8.3), [8.3, 8.4). [8.4, 8.5), [8.5, 8.6), [8.6, 8.7) with bin counts: 0,0,0,1,0,0,0
+
+*Expected Result*
+Initial Cluster Range: 8.3-8.4
+Final Cluster Range: 9.3-10.9
+
+#### Case 2:
+Use a "horizon of 1.0 (i.e., monitor 10 bins below and 10 bins above the "mean bin")  
+
+*Expected Result*
+Initial Cluster Range: 8.3 - 8.4
+Final Cluster Range: 9.3-10.9
+
+Detailed results/transitions are in attached spreadsheet.
