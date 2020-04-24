@@ -72,7 +72,6 @@ public class WobulationCase2Test {
     // @Test
     // public void hello() {}
     @Test
-    @Ignore
     public void testCase2() throws Exception {
         try (BufferedReader r = new BufferedReader(new FileReader("Wob_Valid_case2.csv"))) {
             String line;

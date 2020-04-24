@@ -64,7 +64,7 @@ public class Wobulation {
             if (binFor == null) {
                 binFor = new Bin(midPoint);
                 bins.add(binFor);
-            }
+        }
             binFor.bump();
         }
 
@@ -88,6 +88,7 @@ public class Wobulation {
             //   for this single "cluster" task, 100% of the data is all the data...
             // calculate the mean; we need N so, go ahead and copy-paste here for now
             MeanContext mc = calculateMean();
+            final double meanMidPoint = midPoint(mc.mean);
 
             Bin binFor = binFor(midPoint(mc.mean));
 
@@ -113,7 +114,9 @@ public class Wobulation {
             //    containing the pth percentile of the data above the new mean.
             // my assumptions:
             //   for this single "cluster" task, 100% of the data is all the data...
+            
             MeanContext mc = calculateMean();
+            final double meanMidPoint = midPoint(mc.mean);
 
             Bin binFor = binFor(midPoint(mc.mean));
 
