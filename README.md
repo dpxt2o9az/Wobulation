@@ -14,7 +14,7 @@ The use of percentiles about the frequency distribution mean to establish cluste
 1. The underlying cluster data is not normally distributed.
 2. The underlying data is uniformly distributed within a given bin (small bin assumption.)
 ## Recursive Update Process
-1. Increment frequency count by 1 for the bin containing the new data point. If the data point does not correspond to an existing bin (inside the cluster), discard the data point without update.
+1. Increment frequency count by 1 for the bin containing the new data point. If the data point does not correspond to an existing bin \[inside the cluster\], discard the data point without update.
 2. Update the cluster mean \[(see formula, below.)\]
 3. Update the cluster min to be the lower boundary of bin containing the (1-p)th percentile of the data below the new mean.
 4. Update the cluster max to be the upper boundary of the bin containing the pth percentile of the data above the new mean.
