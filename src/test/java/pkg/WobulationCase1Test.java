@@ -17,6 +17,8 @@ import pkg.Wobulation.ProportionalMeanBinContributionCalculator;
  */
 public class WobulationCase1Test {
 
+    private static final double FP_ACCURACY = 0.00001;
+
     public WobulationCase1Test() {
     }
 
@@ -37,10 +39,9 @@ public class WobulationCase1Test {
 
     private BinContainer finalBins() {
         BinContainer bins = initialBins();
-        double mean = 0.0;
         for (int i = 0; i < 125; i++) {
             bins.bump(0.85);
-            mean = bins.calculateMean().mean;
+            double mean = bins.calculateMean().mean;
             System.out.println("mean: " + mean);
         }
         return bins;
@@ -50,18 +51,18 @@ public class WobulationCase1Test {
     public void testInitialBins() {
         BinContainer bins = initialBins();
         double mean = bins.calculateMean().mean;
-        assertEquals(1.061111, mean, 0.00001);
-        assertEquals(0.7, bins.calculateClusterMin(), 0.00001);
-        assertEquals(1.4, bins.calculateClusterMax(), 0.00001);
+        assertEquals(1.061111, mean, FP_ACCURACY);
+        assertEquals(0.7, bins.calculateClusterMin(), FP_ACCURACY);
+        assertEquals(1.4, bins.calculateClusterMax(), FP_ACCURACY);
     }
 
     @Test
     public void testFinalBins() {
         BinContainer bins = finalBins();
         final double mean = bins.calculateMean().mean;
-        assertEquals(0.897205, mean, 0.00001);
-        assertEquals(0.8, bins.calculateClusterMin(), 0.00001);
-        assertEquals(1.4, bins.calculateClusterMax(), 0.00001);
+        assertEquals(0.897205, mean, FP_ACCURACY);
+        assertEquals(0.8, bins.calculateClusterMin(), FP_ACCURACY);
+        assertEquals(1.4, bins.calculateClusterMax(), FP_ACCURACY);
     }
 
 }
