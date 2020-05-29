@@ -57,10 +57,9 @@ public class HistogramDrawer {
                 double value = Double.parseDouble(line);
                 cluster.add(value);
                 System.out.println(cluster.getMean());
-//                Set<Bin> bins = cluster.getBins();
-//                drawBins(bins);
-//                StdIn.readLine();
             }
+            Set<Bin> bins = cluster.getBins();
+            drawBins(bins);
         }
         return cluster;
     }
